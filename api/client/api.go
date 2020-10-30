@@ -84,4 +84,3 @@ func GetUserList(nodeID int, key string) ([]*UserInfo, error) {
 
 
 
-}
