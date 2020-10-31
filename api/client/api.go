@@ -60,7 +60,7 @@ func get(url string, header map[string]string) (result string, err error) {
 	return responseJson, nil
 }
 
-func GetUserList(nodeID int, key string) ([]UserInfo, error) {
+func GetUserList(nodeID int, key string) ([]UserModel, error) {
 	response, err := get(fmt.Sprintf("%s/api/web/v1/userList/%s", HOST, strconv.Itoa(nodeID)), map[string]string{
 		"key":       key,
 		"timestamp": strconv.FormatInt(time.Now().Unix(), 10),
