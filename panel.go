@@ -182,7 +182,7 @@ func (p *Panel) syncUser() (addedUserCount, deletedUserCount int, err error) {
 	// Calculate addition users
 	addUserModels := make([]UserModel, 0)
 	for _, userModel := range userModels {
-		if inUserModels(userModel, p.userModels) {
+		if inUserModels(&userModel, p.userModels) {
 			continue
 		}
 

@@ -38,7 +38,7 @@ type UserModel struct {
 	ID      uint
 	VmessID string
 	Email   string 	
-	Port    int
+	//Port    int
 }
 
 // implement for vnet api get request
