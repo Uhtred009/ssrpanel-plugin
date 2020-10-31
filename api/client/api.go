@@ -8,6 +8,7 @@ import (
 	//"net/url"
 	"strconv"
 	"time"
+	"bytes"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -82,13 +83,13 @@ func GetUserList(nodeID int, key string) ([]*UserInfo, error) {
 	return result, nil
 }
 
-func UnicodeToUtf8(s string) string {
+func BUnicodeToUtf8(s []byte) string {
 	slen := len(s)
 	i := 0
 	stringBuffer := new(bytes.Buffer)
 	for i < slen {
 		if s[i] == 92 && (s[i+1] == 85 || s[i+1] == 117) {
-			temp, err := strconv.ParseInt(s[i+2:i+6], 16, 32)
+			temp, err := strconv.ParseInt(string(s[i+2:i+6]), 16, 32)
 			if err != nil {
 				panic(err)
 			}
