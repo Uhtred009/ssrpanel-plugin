@@ -34,7 +34,7 @@ func SetHost(host string) {
 }
 
 
-type UserInfo struct {
+type UserModel struct {
 	ID      uint
 	VmessID string
 	Email   string 	
@@ -76,7 +76,7 @@ func GetUserList(nodeID int, key string) ([]UserInfo, error) {
 		return nil, errors.New("get data not found: " + response)
 	}
 
-	result := make([]UserInfo, 0)
+	result := make([]UserModel, 0)
 	
 	err = json.Unmarshal([]byte(value), &result)
 	if err != nil {
