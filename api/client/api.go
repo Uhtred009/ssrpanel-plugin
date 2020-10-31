@@ -68,7 +68,7 @@ func GetUserList(nodeID int, key string) ([]*UserInfo, error) {
 		return nil, err
 	}
 	if gjson.Get(response, "status").String() != "success" {
-		return nil, errors.New((stringx.UnicodeToUtf8(gjson.Get(response, "message").String())))
+		return nil, errors.New((UnicodeToUtf8(gjson.Get(response, "message").String())))
 	}
 	value := gjson.Get(response, "data").String()
 	if value == "" {
