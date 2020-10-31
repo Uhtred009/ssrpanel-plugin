@@ -75,7 +75,9 @@ func GetUserList(nodeID int, key string) ([]*UserInfo, error) {
 	if value == "" {
 		return nil, errors.New("get data not found: " + response)
 	}
-	result := []*UserInfo{}
+
+	result := make([]UserInfo, 0)
+	
 	err = json.Unmarshal([]byte(value), &result)
 	if err != nil {
 		return nil, err
