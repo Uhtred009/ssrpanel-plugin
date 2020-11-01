@@ -60,7 +60,7 @@ func get(url string, header map[string]string) (result string, err error) {
 	return responseJson, nil
 }
 
-func GetUserList(nodeID int, key string) ([]UserModel, error) {
+func GetUserList(nodeID int, key string) (*[]UserModel, error) {
 	response, err := get(fmt.Sprintf("%s/api/web/v1/userList/%s", HOST, strconv.Itoa(nodeID)), map[string]string{
 		"key":       key,
 		"timestamp": strconv.FormatInt(time.Now().Unix(), 10),
@@ -78,11 +78,11 @@ func GetUserList(nodeID int, key string) ([]UserModel, error) {
 
 	result := make([]UserModel, 0)
 	
-	err = json.Unmarshal([]byte(value), result)
+	err = json.Unmarshal([]byte(value), &result)
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return *result, nil
 }
 
 // Convert string like \u4f60\u597d to utf-8 encode
