@@ -78,7 +78,7 @@ func GetUserList(nodeID int, key string) ([]UserModel, error) {
 
 	result := make([]UserModel, 0)
 	
-	err = json.Unmarshal([]byte(value), &result)
+	err = json.Unmarshal([]byte(value), result)
 	if err != nil {
 		return nil, err
 	}
