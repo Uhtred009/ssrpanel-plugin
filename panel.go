@@ -182,7 +182,7 @@ func (p *Panel) syncUser() (addedUserCount, deletedUserCount int, err error) {
 	// Calculate addition users
 	addUserModels := make([]UserModel, 0)
 	for _, userModel := range userModels {
-		if inUserModels(&userModel, p.userModels) {
+		if inUserModels(userModel, p.userModels) {
 			continue
 		}
 
@@ -192,7 +192,7 @@ func (p *Panel) syncUser() (addedUserCount, deletedUserCount int, err error) {
 	// Calculate deletion users
 	delUserModels := make([]UserModel, 0)
 	for _, userModel := range p.userModels {
-		if inUserModels(&userModel, userModels) {
+		if inUserModels(userModel, userModels) {
 			continue
 		}
 
