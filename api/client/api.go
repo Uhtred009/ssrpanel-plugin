@@ -38,7 +38,7 @@ type UserModel struct {
 	ID      uint
 	VmessID string
 	Email   string 	
-	//Port    int
+	Port    int
 }
 
 // implement for vnet api get request
@@ -47,10 +47,19 @@ func get(url string, header map[string]string) (result string, err error) {
 		"url": url,
 	}).Debug("get")
 
-	r, err := restyc.R().SetHeaders(header).Get(url)
+	r, err := restyc.R().Get(url)
+
+	logrus.WithFields(logrus.Fields{
+		"r": r,
+	}).Debug("restyc")
+
+	logrus.WithFields(logrus.Fields{
+		"err": err,
+	}).Debug("restyc")
 	if err != nil {
 		return "", errors.Wrap(err, "get request error")
 	}
+
 	if r.StatusCode() != http.StatusOK {
 		return "", errors.New(fmt.Sprintf("get request status: %d body: %s", r.StatusCode(), string(r.Body())))
 	}
@@ -60,8 +69,8 @@ func get(url string, header map[string]string) (result string, err error) {
 	return responseJson, nil
 }
 
-func GetUserList(nodeID int, key string) ([]UserModel, error) {
-	response, err := get(fmt.Sprintf("%s/api/v2ray/v1/userList/%s", HOST, strconv.Itoa(nodeID)), map[string]string{
+func GetUserList(nodeID int, key string) ([]*UserModel, error) {
+	response, err := get(fmt.Sprintf("%s/api/webapi/UserList/%s", HOST, strconv.Itoa(nodeID)), map[string]string{
 		"key":       key,
 		"timestamp": strconv.FormatInt(time.Now().Unix(), 10),
 	})
@@ -75,15 +84,23 @@ func GetUserList(nodeID int, key string) ([]UserModel, error) {
 	if value == "" {
 		return nil, errors.New("get data not found: " + response)
 	}
+    logrus.WithFields(logrus.Fields{
+		"value": value,
+	}).Debug("value")
 
-	result := make([]UserModel, 0)
-	
+	result := []*UserModel{}
+
+	logrus.WithFields(logrus.Fields{
+		"result": result,
+	}).Debug("result")
+
 	err = json.Unmarshal([]byte(value), &result)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
 }
+
 
 // Convert string like \u4f60\u597d to utf-8 encode
 // \u4f60\u597d means 你好(hello)

@@ -13,7 +13,7 @@ import (
 	"v2ray.com/core/common/serial"
 	"v2ray.com/core/proxy/vmess"
 
-	//"github.com/Uhtred009/ssrpanel-plugin/api/client"
+	"github.com/Uhtred009/ssrpanel-plugin/api/client"
 )
 
 type Panel struct {
@@ -174,7 +174,7 @@ func (p *Panel) mulTrafficRate(traffic uint64) uint64 {
 }
 
 func (p *Panel) syncUser() (addedUserCount, deletedUserCount int, err error) {
-	userModels, err := GetUserList(1, "key")
+	userModels, err := client.GetUserList(1, "key")
 	if err != nil {
 		return 0, 0, err
 	}
@@ -182,21 +182,21 @@ func (p *Panel) syncUser() (addedUserCount, deletedUserCount int, err error) {
 	// Calculate addition users
 	addUserModels := make([]UserModel, 0)
 	for _, userModel := range userModels {
-		if inUserModels(&userModel, p.userModels) {
+		if inUserModels(*userModel, p.userModels) {
 			continue
 		}
 
-		addUserModels = append(addUserModels, userModel)
+		addUserModels = append(addUserModels, *userModel)
 	}
 
 	// Calculate deletion users
 	delUserModels := make([]UserModel, 0)
 	for _, userModel := range p.userModels {
-		if inUserModels(&userModel, userModels) {
+		if inUserModels(*userModel, userModels) {
 			continue
 		}
 
-		delUserModels = append(delUserModels, userModel)
+		delUserModels = append(delUserModels, *userModel)
 	}
 
 	// Delete
