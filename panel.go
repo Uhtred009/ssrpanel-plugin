@@ -174,7 +174,7 @@ func (p *Panel) mulTrafficRate(traffic uint64) uint64 {
 }
 
 func (p *Panel) syncUser() (addedUserCount, deletedUserCount int, err error) {
-	userModels, err := p.db.GetAllUsers()
+	userModels, err := client.GetUserList(1, "key")
 	if err != nil {
 		return 0, 0, err
 	}
