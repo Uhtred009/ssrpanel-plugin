@@ -29,7 +29,7 @@ func TestGetUserList(t *testing.T) {
 	fmt.Printf("value00: %+v \n", result)
 	for _, s :=range result {
 
-		fmt.Printf("value00: %+v \n", *s)
+		fmt.Printf("value00: %+v \n", s)
 
 	} 
 	//Output:

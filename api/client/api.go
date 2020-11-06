@@ -69,7 +69,7 @@ func get(url string, header map[string]string) (result string, err error) {
 	return responseJson, nil
 }
 
-func GetUserList(nodeID int, key string) ([]*UserModel, error) {
+func GetUserList(nodeID int, key string) ([]UserModel, error) {
 	response, err := get(fmt.Sprintf("%s/api/webapi/UserList/%s", HOST, strconv.Itoa(nodeID)), map[string]string{
 		"key":       key,
 		"timestamp": strconv.FormatInt(time.Now().Unix(), 10),
@@ -88,7 +88,7 @@ func GetUserList(nodeID int, key string) ([]*UserModel, error) {
 		"value": value,
 	}).Debug("value")
 
-	result := []*UserModel{}
+	result := []UserModel{}
 
 	logrus.WithFields(logrus.Fields{
 		"result": result,
