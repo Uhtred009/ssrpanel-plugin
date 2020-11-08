@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 	"strings"
-	statsservice "v2ray.com/core/app/stats/command"
+	statsservice "github.com/Uhtred009/v2ray-core-1/app/stats/command"
 
 )
 

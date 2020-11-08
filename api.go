@@ -1,4 +1,4 @@
-package client
+package v2ray_ssrpanel_plugin
 
 import (
 	"crypto/tls"
@@ -33,7 +33,7 @@ func SetHost(host string) {
 	HOST = host
 }
 
-
+/*
 type UserModel struct {
 	ID      uint
 	VmessID string
@@ -41,6 +41,7 @@ type UserModel struct {
 	Port    int
 }
 
+*/
 
 // implement for vnet api get request
 func get(url string, header map[string]string) (result string, err error) {
@@ -70,7 +71,7 @@ func get(url string, header map[string]string) (result string, err error) {
 	return responseJson, nil
 }
 
-func GetUserList(nodeID int, key string) ([]*UserModel, error) {
+func GetUserList(nodeID int, key string) ([]UserModel, error) {
 	response, err := get(fmt.Sprintf("%s/api/webapi/UserList/%s", HOST, strconv.Itoa(nodeID)), map[string]string{
 		"key":       key,
 		"timestamp": strconv.FormatInt(time.Now().Unix(), 10),
@@ -89,7 +90,7 @@ func GetUserList(nodeID int, key string) ([]*UserModel, error) {
 		"value": value,
 	}).Debug("value")
 
-	result := []*UserModel{}
+	result := []UserModel{}
 
 	
 

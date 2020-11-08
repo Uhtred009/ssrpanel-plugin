@@ -36,5 +36,18 @@ func TestGetUserList(t *testing.T) {
 }
 
 
+func TestSyncUser(t *testing.T) {
+	HOST = "https://xiaoxue.ga"
+	logrus.SetLevel(logrus.DebugLevel)
+
+	fmt.Printf("2222 \n")
+
+	result, _ := SyncUser()
+	fmt.Printf("2222 \n")
+	fmt.Printf("value00: %+v \n", result)
+	
+	//Output:
+}
+
 
 
