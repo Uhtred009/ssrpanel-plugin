@@ -103,7 +103,7 @@ func (p *Panel) do() error {
 		Uptime: time.Now().Sub(p.startAt) / time.Second,
 		Load:   getSystemLoad(),
 		OnlineNum: onlineUsers,
-		} , 5, "key" )
+		} , p.NodeID , "key" )
 
     if err != nil {
 		return err
@@ -204,9 +204,10 @@ func (p *Panel) getTraffic() (logs []UserTraffic, iplists []NodeOnline , err err
 			
 	}
 
-	return
+	
 }
 
+return
 }
 /*
 
