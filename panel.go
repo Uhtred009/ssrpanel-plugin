@@ -103,7 +103,7 @@ func (p *Panel) do() error {
 		Uptime: time.Now().Sub(p.startAt) / time.Second,
 		Load:   getSystemLoad(),
 		OnlineNum: onlineUsers,
-		} , p.NodeID , "key" )
+		} , int(p.NodeID) , "key" )
 
     if err != nil {
 		return err
