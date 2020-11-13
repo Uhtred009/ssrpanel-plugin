@@ -5,25 +5,25 @@ import (
 
 	"github.com/jinzhu/gorm"
 )
-
+/*
 type UserModel struct {
 	ID      uint
 	VmessID string
 	Email   string `gorm:"column:username"`
 	Port    int
 }
+*/
 
 func (*UserModel) TableName() string {
 	return "user"
 }
 
 type UserTrafficLog struct {
-	ID       uint `gorm:"primary_key"`
-	UserID   uint
-	Uplink   uint64 `gorm:"column:u"`
-	Downlink uint64 `gorm:"column:d"`
+	Uid       int   `json:"uid"`
+	Upload    int64 `json:"upload"'`
+	Download  int64 `json:"download"`
 	NodeID   uint
-	Rate     float64
+	//Rate     float64
 	Traffic  string
 	LogTime  int64
 }
@@ -67,13 +67,16 @@ func (n *NodeIP) BeforeCreate(scope *gorm.Scope) error {
 	return nil
 }
 
+
 type NodeInfo struct {
 	ID      uint `gorm:"primary_key"`
-	NodeID  uint
+	NodeID  int
 	Uptime  time.Duration
 	Load    string
+//	NodeIP   string
 	LogTime int64
 }
+
 
 func (*NodeInfo) TableName() string {
 	return "ss_node_info"
@@ -96,6 +99,8 @@ func (*Node) TableName() string {
 type DB struct {
 	DB *gorm.DB
 }
+
+
 
 func (db *DB) GetAllUsers() ([]UserModel, error) {
 	users := make([]UserModel, 0)

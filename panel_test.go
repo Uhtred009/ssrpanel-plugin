@@ -21,7 +21,7 @@ func TestGetGet(t *testing.T) {
 }
 */
 
-func TestsyncUser(t *testing.T) {
+func TestStart(t *testing.T) {
 	
 	logrus.SetLevel(logrus.DebugLevel)
 

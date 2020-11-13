@@ -1,9 +1,9 @@
 package v2ray_ssrpanel_plugin
 
 import (
-	"code.cloudfoundry.org/bytefmt"
+	//"code.cloudfoundry.org/bytefmt"
 	"fmt"
-	"github.com/jinzhu/gorm"
+	//"github.com/jinzhu/gorm"
 	"github.com/robfig/cron"
 
 	"github.com/shirou/gopsutil/load"
@@ -60,24 +60,56 @@ func (p *Panel) Start() {
 
 func (p *Panel) do() error {
 	var addedUserCount, deletedUserCount, onlineUsers int
-	var uplinkTotal, downlinkTotal uint64
+//	var uplinkTotal, downlinkTotal uint64
 	defer func() {
-		newErrorf("+ %d users, - %d users, ↓ %s, ↑ %s, online %d",
-			addedUserCount, deletedUserCount, bytefmt.ByteSize(downlinkTotal), bytefmt.ByteSize(uplinkTotal), onlineUsers).AtDebug().WriteToLog()
+		newErrorf("+ %d users, - %d users,  online %d",
+			addedUserCount, deletedUserCount, onlineUsers).AtDebug().WriteToLog()
 	}()
+/*
 
 	p.db.DB.Create(&NodeInfo{
 		NodeID: p.NodeID,
 		Uptime: time.Now().Sub(p.startAt) / time.Second,
 		Load:   getSystemLoad(),
 	})
+*/
 
-	userTrafficLogs, err := p.getTraffic()
+    
+
+	userTrafficLogs, ipLists, err := p.getTraffic()
 	if err != nil {
 		return err
 	}
+
+
+	err = PostAllUserTraffic(userTrafficLogs, 5 , "key")
+
+     if err != nil {
+		return err
+	}
+	
+
+    err  = PostIplist( ipLists , 5 , "key")
+
+      if err != nil {
+		return err
+	}
+
+
 	onlineUsers = len(userTrafficLogs)
 
+     err = PostNodeStatus(NodeInfoa{
+		NodeID: p.NodeID,
+		Uptime: time.Now().Sub(p.startAt) / time.Second,
+		Load:   getSystemLoad(),
+		OnlineNum: onlineUsers,
+		} , 5, "key" )
+
+    if err != nil {
+		return err
+	}
+
+/*
 	var uVals, dVals string
 	var userIDs []uint
 
@@ -89,7 +121,7 @@ func (p *Panel) do() error {
 		downlinkTotal += log.Downlink
 
 		log.Traffic = bytefmt.ByteSize(uplink + downlink)
-		p.db.DB.Create(&log.UserTrafficLog)
+		
 
 		userIDs = append(userIDs, log.UserID)
 		uVals += fmt.Sprintf(" WHEN %d THEN u + %d", log.UserID, uplink)
@@ -121,18 +153,22 @@ func (p *Panel) do() error {
 				"t": time.Now().Unix(),
 			})
 	}
+	*/
 
 	addedUserCount, deletedUserCount, err = p.syncUser()
 	return nil
 }
 
+/*
 type userStatsLogs struct {
 	UserTrafficLog
 	ipList   string
 	UserPort int
 }
+*/
 
-func (p *Panel) getTraffic() (logs []userStatsLogs, err error) {
+
+func (p *Panel) getTraffic() (logs []UserTraffic, iplists []NodeOnline , err error) {
 	var downlink, uplink uint64
 	var ips string
 	for _, user := range p.userModels {
@@ -152,28 +188,35 @@ func (p *Panel) getTraffic() (logs []userStatsLogs, err error) {
 				return
 			}
 
-			logs = append(logs, userStatsLogs{
-				UserTrafficLog: UserTrafficLog{
-					UserID:   user.ID,
-					Uplink:   uplink,
-					Downlink: downlink,
+			logs = append(logs, UserTraffic{
+					Uid:   user.ID,
+					Upload:   uplink,
+					Download: downlink,
 					NodeID:   p.NodeID,
-					Rate:     p.node.TrafficRate,
-				},
-				ipList:   ips,
-				UserPort: user.Port,
-			})
-		}
+					
+				})
+
+			iplists = append (iplists , NodeOnline{
+                 Uid: user.ID,
+				 IP : ips,
+
+			    })
+			
 	}
 
 	return
 }
 
+}
+/*
+
 func (p *Panel) mulTrafficRate(traffic uint64) uint64 {
 	return uint64(p.node.TrafficRate * float64(traffic))
 }
+*/
 
-func (p *Panel) syncUser() (addedUserCount, deletedUserCount int, err error) {
+func (p *Panel) syncUser() (addedUserCount , deletedUserCount int , err error) {
+	//var err error
 	userModels, err := GetUserList(1, "key")
 	if err != nil {
 		return 0, 0, err
