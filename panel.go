@@ -81,7 +81,7 @@ func (p *Panel) do() error {
 
     time.Sleep(time.Second)
 
-	userTrafficLogs, ipLists, err = p.getTraffic()
+	userTrafficLogs, ipLists, err := p.getTraffic()
 	if err != nil {
 		return err
 	}
@@ -119,8 +119,10 @@ func (p *Panel) do() error {
     if err != nil {
 		return err
 	}
+	
+    time.Sleep(time.Second)
 
-
+    addedUserCount, deletedUserCount, err = p.syncUser()
 
 /*
 	var uVals, dVals string
