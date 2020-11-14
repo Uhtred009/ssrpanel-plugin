@@ -75,13 +75,7 @@ func get(url string, header map[string]string) (result string, err error) {
 
 	r, err := restyc.R().Get(url)
 
-	logrus.WithFields(logrus.Fields{
-		"r": r,
-	}).Debug("restyc")
-
-	logrus.WithFields(logrus.Fields{
-		"err": err,
-	}).Debug("restyc")
+	
 	if err != nil {
 		return "", errors.Wrap(err, "get request error")
 	}

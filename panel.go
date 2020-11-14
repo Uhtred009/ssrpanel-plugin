@@ -5,6 +5,7 @@ import (
 	"fmt"
 	//"github.com/jinzhu/gorm"
 	"github.com/robfig/cron"
+	//"time"
 
 	"github.com/shirou/gopsutil/load"
 	"google.golang.org/grpc"
@@ -74,12 +75,18 @@ func (p *Panel) do() error {
 	})
 */
 
-    
+ //上报流量和在线ip 和用户数量   
 
-	userTrafficLogs, ipLists, err := p.getTraffic()
+    addedUserCount, deletedUserCount, err := p.syncUser()
+
+    time.Sleep(time.Second)
+
+	userTrafficLogs, ipLists, err = p.getTraffic()
 	if err != nil {
 		return err
 	}
+
+    time.Sleep(time.Second)
 
 
 	err = PostAllUserTraffic(userTrafficLogs, 5 , "key")
@@ -88,6 +95,8 @@ func (p *Panel) do() error {
 		return err
 	}
 	
+  
+    time.Sleep(time.Second)  
 
     err  = PostIplist( ipLists , 5 , "key")
 
@@ -97,6 +106,8 @@ func (p *Panel) do() error {
 
 
 	onlineUsers = len(userTrafficLogs)
+
+	time.Sleep(time.Second)
 
      err = PostNodeStatus(NodeInfoa{
 		NodeID: p.NodeID,
@@ -108,6 +119,8 @@ func (p *Panel) do() error {
     if err != nil {
 		return err
 	}
+
+
 
 /*
 	var uVals, dVals string
@@ -155,7 +168,7 @@ func (p *Panel) do() error {
 	}
 	*/
 
-	addedUserCount, deletedUserCount, err = p.syncUser()
+	
 	return nil
 }
 
