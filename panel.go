@@ -79,48 +79,55 @@ func (p *Panel) do() error {
 
     addedUserCount, deletedUserCount, err := p.syncUser()
 
-    time.Sleep(time.Second)
+  
 
 	userTrafficLogs, ipLists, err := p.getTraffic()
 	if err != nil {
-		return err
+		newErrorf("get usertrafficlos fail").AtDebug().WriteToLog()
 	}
 
-    time.Sleep(time.Second)
+   // newErrorf("Deleted user: id=%d, VmessID=%s, Email=%s").AtDebug().WriteToLog()
 
 
-	err = PostAllUserTraffic(userTrafficLogs, 5 , "key")
+	if  err := PostAllUserTraffic(userTrafficLogs, 5 , "key"); err != nil{
 
-     if err != nil {
-		return err
+        newErrorf("post allusertraffic fail").AtDebug().WriteToLog()
 	}
+
+    
 	
   
-    time.Sleep(time.Second)  
+   
 
-    err  = PostIplist( ipLists , 5 , "key")
+    if  err := PostIplist( ipLists , 5 , "key"); err != nil{
 
-      if err != nil {
-		return err
-	}
+      
+        newErrorf("post userlist fail").AtDebug().WriteToLog()
+    }
+
+
+     
+
 
 
 	onlineUsers = len(userTrafficLogs)
 
-	time.Sleep(time.Second)
+	//time.Sleep(time.Second)
 
-     err = PostNodeStatus(NodeInfoa{
+     if err := PostNodeStatus(NodeInfoa{
 		NodeID: p.NodeID,
 		Uptime: time.Now().Sub(p.startAt) / time.Second,
 		Load:   getSystemLoad(),
 		OnlineNum: onlineUsers,
-		} , int(p.NodeID) , "key" )
+		} , int(p.NodeID) , "key" );err != nil{
 
-    if err != nil {
-		return err
-	}
-	
-    time.Sleep(time.Second)
+        newErrorf("post nodestatus fail").AtDebug().WriteToLog()
+
+		}
+
+  
+
+    
 
     addedUserCount, deletedUserCount, err = p.syncUser()
 
