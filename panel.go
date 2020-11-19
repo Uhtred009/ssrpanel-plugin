@@ -129,7 +129,7 @@ func (p *Panel) do() error {
 
     
 
-    addedUserCount, deletedUserCount, err = p.syncUser()
+    //addedUserCount, deletedUserCount, err = p.syncUser()
 
 /*
 	var uVals, dVals string

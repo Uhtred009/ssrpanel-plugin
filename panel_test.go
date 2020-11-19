@@ -30,6 +30,16 @@ func TestStart(t *testing.T) {
 	//Output:
 }
 
+func Testdo(t *testing.T) {
+	
+	logrus.SetLevel(logrus.DebugLevel)
+
+	fmt.Printf("2222 \n")
+	 
+	//Output:
+}
+
+
 
 
 

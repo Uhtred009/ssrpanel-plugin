@@ -54,7 +54,7 @@ type NodeInfoa struct {
 	Load    string `json:"load"`
 	OnlineNum int  `json:"onlinenum"`
 //	NodeIP   string
-	LogTime int64 	`json:"logtime"`
+//	LogTime int64 	`json:"logtime"`
 }
 
 type UserTraffic struct {
