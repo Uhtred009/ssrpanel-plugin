@@ -1,20 +1,16 @@
 package v2ray_ssrpanel_plugin
 
 import (
-	//"code.cloudfoundry.org/bytefmt"
+	"code.cloudfoundry.org/bytefmt"
 	"fmt"
-	//"github.com/jinzhu/gorm"
+	"github.com/jinzhu/gorm"
 	"github.com/robfig/cron"
-	//"time"
-
 	"github.com/shirou/gopsutil/load"
 	"google.golang.org/grpc"
 	"time"
 	"v2ray.com/core/common/protocol"
 	"v2ray.com/core/common/serial"
 	"v2ray.com/core/proxy/vmess"
-
-	//"ssrpanel-plugin/api/client"
 )
 
 type Panel struct {
@@ -61,77 +57,24 @@ func (p *Panel) Start() {
 
 func (p *Panel) do() error {
 	var addedUserCount, deletedUserCount, onlineUsers int
-//	var uplinkTotal, downlinkTotal uint64
+	var uplinkTotal, downlinkTotal uint64
 	defer func() {
-		newErrorf("+ %d users, - %d users,  online %d",
-			addedUserCount, deletedUserCount, onlineUsers).AtDebug().WriteToLog()
+		newErrorf("+ %d users, - %d users, ↓ %s, ↑ %s, online %d",
+			addedUserCount, deletedUserCount, bytefmt.ByteSize(downlinkTotal), bytefmt.ByteSize(uplinkTotal), onlineUsers).AtDebug().WriteToLog()
 	}()
-/*
 
 	p.db.DB.Create(&NodeInfo{
 		NodeID: p.NodeID,
 		Uptime: time.Now().Sub(p.startAt) / time.Second,
 		Load:   getSystemLoad(),
 	})
-*/
 
- //上报流量和在线ip 和用户数量   
-
-    addedUserCount, deletedUserCount, err := p.syncUser()
-
-  
-
-	userTrafficLogs, ipLists, err := p.getTraffic()
+	userTrafficLogs, err := p.getTraffic()
 	if err != nil {
-		newErrorf("get usertrafficlos fail").AtDebug().WriteToLog()
+		return err
 	}
-
-   // newErrorf("Deleted user: id=%d, VmessID=%s, Email=%s").AtDebug().WriteToLog()
-
-
-	if  err := PostAllUserTraffic(userTrafficLogs, 5 , "key"); err != nil{
-
-        newErrorf("post allusertraffic fail").AtDebug().WriteToLog()
-	}
-
-    
-	
-  
-   
-
-    if  err := PostIplist( ipLists , 5 , "key"); err != nil{
-
-      
-        newErrorf("post userlist fail").AtDebug().WriteToLog()
-    }
-
-
-     
-
-
-
 	onlineUsers = len(userTrafficLogs)
 
-	//time.Sleep(time.Second)
-
-     if err := PostNodeStatus(NodeInfoa{
-		NodeID: p.NodeID,
-		Uptime: time.Now().Sub(p.startAt) / time.Second,
-		Load:   getSystemLoad(),
-		OnlineNum: onlineUsers,
-		} , int(p.NodeID) , "key" );err != nil{
-
-        newErrorf("post nodestatus fail").AtDebug().WriteToLog()
-
-		}
-
-  
-
-    
-
-    //addedUserCount, deletedUserCount, err = p.syncUser()
-
-/*
 	var uVals, dVals string
 	var userIDs []uint
 
@@ -143,7 +86,7 @@ func (p *Panel) do() error {
 		downlinkTotal += log.Downlink
 
 		log.Traffic = bytefmt.ByteSize(uplink + downlink)
-		
+		p.db.DB.Create(&log.UserTrafficLog)
 
 		userIDs = append(userIDs, log.UserID)
 		uVals += fmt.Sprintf(" WHEN %d THEN u + %d", log.UserID, uplink)
@@ -175,22 +118,18 @@ func (p *Panel) do() error {
 				"t": time.Now().Unix(),
 			})
 	}
-	*/
 
-	
+	addedUserCount, deletedUserCount, err = p.syncUser()
 	return nil
 }
 
-/*
 type userStatsLogs struct {
 	UserTrafficLog
 	ipList   string
 	UserPort int
 }
-*/
 
-
-func (p *Panel) getTraffic() (logs []UserTraffic, iplists []NodeOnline , err error) {
+func (p *Panel) getTraffic() (logs []userStatsLogs, err error) {
 	var downlink, uplink uint64
 	var ips string
 	for _, user := range p.userModels {
@@ -210,46 +149,37 @@ func (p *Panel) getTraffic() (logs []UserTraffic, iplists []NodeOnline , err err
 				return
 			}
 
-			logs = append(logs, UserTraffic{
-					Uid:   user.ID,
-					Upload:   uplink,
-					Download: downlink,
+			logs = append(logs, userStatsLogs{
+				UserTrafficLog: UserTrafficLog{
+					UserID:   user.ID,
+					Uplink:   uplink,
+					Downlink: downlink,
 					NodeID:   p.NodeID,
-					
-				})
-
-			iplists = append (iplists , NodeOnline{
-                 Uid: user.ID,
-				 IP : ips,
-
-			    })
-			
+					Rate:     p.node.TrafficRate,
+				},
+				ipList:   ips,
+				UserPort: user.Port,
+			})
+		}
 	}
 
-	
+	return
 }
-
-return
-}
-/*
 
 func (p *Panel) mulTrafficRate(traffic uint64) uint64 {
 	return uint64(p.node.TrafficRate * float64(traffic))
 }
-*/
 
-func (p *Panel) syncUser() (addedUserCount , deletedUserCount int , err error) {
-	//var err error
-	userModels, err := GetUserList(1, "key")
+func (p *Panel) syncUser() (addedUserCount, deletedUserCount int, err error) {
+	userModels, err := p.db.GetAllUsers()
 	if err != nil {
 		return 0, 0, err
 	}
 
 	// Calculate addition users
 	addUserModels := make([]UserModel, 0)
-
-	for i, userModel := range userModels {
-		if inUserModels(&(userModels[i]), p.userModels) {
+	for _, userModel := range userModels {
+		if inUserModels(&userModel, p.userModels) {
 			continue
 		}
 
